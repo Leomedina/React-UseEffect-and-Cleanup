@@ -4,6 +4,7 @@ import axios from "axios";
 
 const Board = () => {
   const [deck, setDeck] = useState(null);
+  const [cards, setCards] = useState([]);
 
   useEffect(() => {
     const getNewDeck = async function () {
@@ -14,16 +15,21 @@ const Board = () => {
   }, []);
 
 
+  const getCard = async function () {
+    const res = await axios.get(`https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`);
+    setCards(cards => [
+      ...cards, ...res.data.cards
+    ]);
+  };
 
   return (
     <>
-      <button>Hit Me</button>
-      <Card
-        image="https://deckofcardsapi.com/static/img/KH.png"
-        value="KING"
-        suit="HEARTS"
-        key="KH"
-      />
+      <button onClick={getCard}>Hit Me</button>
+      <p>
+        {cards ? cards.map(({ value, suit, image, key }) =>
+          <Card value={value} suit={suit} image={image} key={key} />) : 'Currently no cards'}
+        {}
+      </p>
     </>
   );
 }
