@@ -5,6 +5,7 @@ import axios from "axios";
 const Board = () => {
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
+  const [cardVisible, setCardVisible] = useState(false)
 
   useEffect(() => {
     const getNewDeck = async function () {
@@ -14,22 +15,44 @@ const Board = () => {
     getNewDeck();
   }, []);
 
+  useEffect(() => {
+    let intervalId = 0;
 
-  const getCard = async function () {
+    if (cardVisible) {
+      intervalId = setInterval(() => {
+        getCards();
+      }, 1000);
+    }
+    return () => {
+      clearInterval(intervalId);
+      setCards([]);
+    };
+  }, [cardVisible]);
+
+  const toggleVisible = () => {
+    setCardVisible(!cardVisible);
+
+  }
+
+  const getCards = async function () {
     const res = await axios.get(`https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`);
-    setCards(cards => [
-      ...cards, ...res.data.cards
-    ]);
+    if (res.data.success) {
+      setCards(cards => [
+        ...cards, ...res.data.cards
+      ]);
+    } else {
+      alert("No more cards");
+    }
   };
 
   return (
     <>
-      <button onClick={getCard}>Hit Me</button>
       <p>
-        {cards ? cards.map(({ value, suit, image, key }) =>
-          <Card value={value} suit={suit} image={image} key={key} />) : 'Currently no cards'}
-        {}
+        <button onClick={toggleVisible}>Toggle Cards</button>
       </p>
+      {cards && cardVisible ? cards.map(({ value, suit, image, code }) =>
+        <Card value={value} suit={suit} image={image} key={code} />) : 'Currently no cards'}
+      {}
     </>
   );
 }
