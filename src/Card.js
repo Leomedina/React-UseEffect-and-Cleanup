@@ -1,7 +1,10 @@
 import React from 'react';
 
-const Card = () => (
+const Card = ({ value, suit, image }) => (
   <>
+    <div>
+      <img src={image} alt={`${suit}-${value}-`} />
+    </div>
   </>
 );
 
